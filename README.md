@@ -1,4 +1,8 @@
 # terraform_gcp_monitoring
+
+https://github.com/hashicorp/terraform-provider-google/issues/3008
+
+
 to install this 
 1- create a service account to authenticate terraform
 2- install Ops agent in all the nodes.https://www.youtube.com/watch?v=Fzd6WP0_bWM  
