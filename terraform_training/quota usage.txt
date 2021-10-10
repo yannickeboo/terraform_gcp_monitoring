@@ -1,0 +1,49 @@
+resource "google_monitoring_notification_channel" "email" {
+  project = var.project
+  display_name = "Send email to ${var.notification_email_addresses}"
+  type = "email"
+  labels = {
+    email_address = var.notification_email_addresses
+  }
+}
+
+resource "google_monitoring_alert_policy" "disk-usage" {
+  project      = var.project
+  display_name = "Disk usage"
+  enabled      = true
+  combiner     = "OR"
+
+  notification_channels = [google_monitoring_notification_channel.email.name
+  ]
+
+  conditions {
+            display_name = each.value.title
+            condition_monitoring_query_language { 
+            query = format(fetch consumer_quota
+| filter resource.service =~ '.*'
+| { metric serviceruntime.googleapis.com/quota/allocation/usage
+    | align next_older(1d)
+    | group_by [resource.project_id, metric.quota_metric, resource.location],
+        max(val())
+   metric serviceruntime.googleapis.com/quota/limit
+    | align next_older(1d)
+    | group_by [resource.project_id, metric.quota_metric, resource.location],
+        min(val())
+  }
+| ratio
+| every 1m
+| condition gt(val(), 0.8 "1"))
+            duration = "60s"
+            trigger {
+                count = each.value.trigger
+                }
+            }
+        }
+
+        aggregations {
+            alignment_period   = "60s"
+            per_series_aligner = "ALIGN_MIN"
+        }  
+      }
+    }
+}

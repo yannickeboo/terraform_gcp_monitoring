@@ -1,0 +1,42 @@
+
+provider "google" {
+  project = var.project
+  region = "us-central1"
+  zone = "us-central1-c"
+  credentials = file("service-account.json") 
+}
+
+resource "google_monitoring_notification_channel" "basic" {
+  display_name = "Disk usage Notification Channel"
+  type         = "email"
+  labels = {
+    email_address = "ezapaky@gmail.com"
+  }
+}
+resource "google_monitoring_alert_policy" "disk-usage" {
+  display_name = "Disk usage"
+  enabled      = true
+  combiner     = "OR"
+  
+   notification_channels = [google_monitoring_notification_channel.basic.name] 
+  conditions {
+      display_name = "Free disk space on sda1"
+
+      condition_threshold {
+        filter = "metric.type=\"agent.googleapis.com/disk/percent_used\" AND resource.type=\"gce_instance/device/dev/sda1\""
+
+        duration        = "60s"
+        comparison      = "COMPARISON_LT"
+        threshold_value = "10"
+
+        trigger {
+          count = "1"
+        }
+
+        aggregations {
+            alignment_period   = "60s"
+            per_series_aligner = "ALIGN_MIN"
+          }
+      }    
+    }
+}
