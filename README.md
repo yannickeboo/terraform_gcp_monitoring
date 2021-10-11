@@ -8,22 +8,22 @@ to install this
 2- install Ops agent in all the nodes.https://www.youtube.com/watch?v=Fzd6WP0_bWM  
 3- https://cloud.google.com/monitoring/api/metrics_opsagent
 4- for the list https://github.com/hashicorp/terraform-provider-google/issues/3008
-resource "google_monitoring_notification_channel" "email" {
-  project = var.project
-  display_name = "Send email to ${var.notification_email_addresses}"
-  type = "email"
-  labels = {
-    email_address = var.notification_email_addresses
-  }
-}
+> resource "google_monitoring_notification_channel" "email" {
+>  project = var.project
+>  display_name = "Send email to ${var.notification_email_addresses}"
+>  type = "email"
+>  labels = {
+>    email_address = var.notification_email_addresses
+>  }
+> }
+>
+> resource "google_monitoring_alert_policy" "disk-usage" {
+>  project      = var.project
+>  display_name = "Disk usage"
+>  enabled      = true
+>  combiner     = "OR"
 
-resource "google_monitoring_alert_policy" "disk-usage" {
-  project      = var.project
-  display_name = "Disk usage"
-  enabled      = true
-  combiner     = "OR"
-
-  notification_channels = [google_monitoring_notification_channel.email.name
+>  notification_channels = [google_monitoring_notification_channel.email.name
   ]
 
   conditions {
