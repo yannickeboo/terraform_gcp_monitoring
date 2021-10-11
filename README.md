@@ -23,7 +23,7 @@ to install this
 >  enabled      = true
 >  combiner     = "OR"
 
->  notification_channels = [google_monitoring_notification_channel.email.name
+>>  notification_channels = [google_monitoring_notification_channel.email.name
   ]
 
   conditions {
